@@ -17,7 +17,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - if: runner.os != 'Windows'
+        run: npx playwright install --with-deps chromium
       - run: npm test
+        env:
+          DSH_TEST_BROWSER_CHANNEL: ${{ runner.os == 'Windows' && 'msedge' || '' }}
       - run: npm run check:release
       - run: npm run release:source

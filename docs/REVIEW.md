@@ -22,7 +22,7 @@
 
 ## 仍有限制
 
-- GitHub Actions 配置 Windows/Linux、Node.js 22，每次推送运行；实际结果见[仓库 Actions](https://github.com/abalika/dsh-mode-switch/actions)。上述本机结果不能当作该 CI 或所有 Node 版本的结果。公开 CI 不附带桌面归档，因此相应集成用例会明确跳过。
+- GitHub Actions 配置 Windows（预装 Edge）/Linux（Playwright Chromium）、Node.js 22，每次推送运行；实际结果见[仓库 Actions](https://github.com/abalika/dsh-mode-switch/actions)。上述本机结果不能当作该 CI 或所有 Node 版本的结果。公开 CI 不附带桌面归档，因此相应集成用例会明确跳过。
 - 真实桌面人工检查使用 Windows、浅色主题和常规窗口。480px/深色变量来自模拟宿主测试；其他操作系统、真实深色/全屏/触摸布局尚需人工验证。
 - 宿主品牌下方没有正式公开插槽，网站布局也可能更新，两处适配均可能需要随之调整。无法定位网站品牌时保留备用返回入口。0.2.0-rc.2 的补丁已验证，完整 UI 人工验收使用 0.2.1-rc.2。
 - 登录保存是额外、明确选择的 Windows 程序补丁，不是普通插件 API；不保证网站永远不要求重新登录。原型安装可能缺少新版格式备份，见安装指南。
