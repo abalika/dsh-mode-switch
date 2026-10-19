@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-// Local, opt-in Windows patch. No downloads, profile access or login automation.
+// Local Windows patch, also used by default automatic setup after desktop exit.
+// No downloads, account/profile contents or login automation.
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -97,7 +98,7 @@ function assertAppStopped(archive) {
   const shell = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32/WindowsPowerShell/v1.0/powershell.exe');
   try { execFileSync(shell, ['-NoProfile', '-NonInteractive', '-Command', script], { env: { ...process.env, DSH_MODE_SWITCH_EXE: exe }, windowsHide: true, stdio: 'pipe', timeout: 15000 }); }
   catch (error) {
-    if (error.status === 9) throw new Error('Fully quit this DeepSeek Harness installation from its application menu before patching.');
+    if (error.status === 9) throw Object.assign(new Error('Fully quit this DeepSeek Harness installation from its application menu before patching.'), { code: 'DSH_APP_RUNNING' });
     throw new Error('Could not verify that DeepSeek Harness is stopped. No application files changed.');
   }
 }
@@ -105,7 +106,7 @@ function exclusive(archive, action) {
   const lock = `${archive}.dsh-mode-switch.lock`;
   let fd;
   try { fd = fs.openSync(lock, 'wx', 0o600); }
-  catch (error) { if (error.code === 'EEXIST') throw new Error('Another patch operation or a stale lock exists. See docs/INSTALL.md.'); throw error; }
+  catch (error) { if (error.code === 'EEXIST') throw Object.assign(new Error('Another patch operation or a stale lock exists. See docs/INSTALL.md.'), { code: 'DSH_PATCH_BUSY' }); throw error; }
   try { return action(); } finally { fs.closeSync(fd); fs.unlinkSync(lock); }
 }
 function writeNew(file, bytes) {
@@ -147,12 +148,13 @@ function check(file) {
   }
   return { status: state.patched ? 'patched' : 'unpatched', version: state.version, partition: PARTITION, restoreAvailable, backupStatus };
 }
-function install(file) {
+function install(file, { beforeWrite = () => {} } = {}) {
   const archive = resolveArchive(file);
   assertAppStopped(archive);
   return exclusive(archive, () => {
     const original = fs.readFileSync(archive), patched = patchArchive(original);
     if (patched === original) return { ...check(archive), status: 'already-installed' };
+    beforeWrite();
     const paths = backupPaths(archive);
     fs.mkdirSync(paths.directory, { recursive: true, mode: 0o700 });
     const originalHash = hash(original), backupName = `original-${originalHash}.asar`, backup = path.join(paths.directory, backupName);
@@ -164,6 +166,7 @@ function install(file) {
     atomicReplace(paths.manifest, Buffer.from(JSON.stringify(manifest, null, 2) + '\n'));
     if (hash(fs.readFileSync(archive)) !== originalHash) throw new Error('Archive changed during installation; refusing to overwrite.');
     assertAppStopped(archive);
+    beforeWrite();
     atomicReplace(archive, patched);
     return { status: 'installed', version: identify(mainSource(patched)).version, partition: PARTITION, backup };
   });
@@ -184,7 +187,7 @@ function restore(file) {
 }
 function run(args) {
   if (args.length === 0 || (args.length === 1 && args[0] === '--help')) {
-    console.log('Usage: node desktop/persistent-session.cjs --archive "<resources/app.asar>" [--check | --restore]\nDefault: install the optional persistent-session patch. Fully quit DSH first.\n--check is read-only. Writes are supported on Windows only. No version bypass option.'); return;
+    console.log('Usage: node desktop/persistent-session.cjs --archive "<resources/app.asar>" [--check | --restore]\nManual fallback: install the persistent-session patch. The plugin schedules this automatically after desktop exit.\n--check is read-only. Writes are supported on Windows only. Fully quit DSH before writing. No version bypass option.'); return;
   }
   let archive, operation = 'install';
   for (let i = 0; i < args.length; i++) {

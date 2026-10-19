@@ -10,10 +10,10 @@
 ```sh
 git init -b main
 git add .
-git commit -m "Release DSH Mode Switch 0.2.1"
+git commit -m "Release DSH Mode Switch 0.2.2"
 ```
 
-推送后检查 Actions 结果。未通过前不要把版本描述为跨平台完整验证。确认无误再创建 `v0.2.1` Release，可附上 `npm pack --ignore-scripts` 生成的插件 `.tgz` 和 SHA256 校验值。说明支持的桌面版本、Windows 可选登录补丁和已知限制。
+推送后检查 Actions 结果。未通过前不要把版本描述为跨平台完整验证。确认无误再创建 `v0.2.2` Release，可附上 `npm pack --ignore-scripts` 生成的插件 `.tgz` 和 SHA256 校验值。说明支持的桌面版本、Windows 默认自动登录保存（退出后配置、下次启动生效）、关闭方式和已知限制。
 
 仓库根目录应直接有 `README.md`、`package.json`、`lib/` 等源码，而不是只有压缩包。保留 MIT 许可和第三方声明。截图使用全新的演示数据，避免展示头像、账户名、聊天标题、文件路径和会话内容。
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 — 2026-10-19
+
+- Enable cross-restart login storage by default on supported Windows desktops. Activation schedules a hidden one-shot helper that waits for full app exit, then verifies, backs up and configures the existing persistent partition for the next launch.
+- Do not depend on package lifecycle scripts: installation with `--ignore-scripts` still enables activation-based setup. Already-enabled installations keep their session.
+- Preserve strict build approval, stopped-app checks and atomic rollback. Cancel pending setup on plugin removal/replacement; bound waiting to seven days. No forced shutdown, elevation, task service or downloads.
+- Add `DSH_MODE_SWITCH_PERSIST_LOGIN=0` opt-out, automatic-setup tests and updated installation/security documentation. Website expiry or first-time partition changes can still require sign-in.
+
 ## 0.2.1 — 2026-10-19
 
 - Remove the duplicate DeepSeek header, cloned branding and permanent status toolbar. Put the return action under the website's own logo in a separate layout row.

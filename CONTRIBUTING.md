@@ -13,6 +13,8 @@ Playwright tests mock the desktop bridge and guest. The website adapter also run
 
 On Windows, set `DSH_TEST_ARCHIVE` to a pristine supported `app.asar` to enable install/rollback integration tests. Tests copy it to a temporary fake installation, never launch its executable and never change the source archive.
 
+Automatic-setup tests cover default activation without package scripts, opt-out, exact package registration, single-helper scheduling, detached hidden spawning, delayed execution, app-running/lock retries, uninstall cancellation before writes, deadline expiry and unsupported-build refusal. With a supported archive, a separate integration test launches real native Node processes in a temporary fake installation, waits for its test parent to exit, patches and restores byte-for-byte. Tests must not patch the contributor's actual desktop installation.
+
 For cross-process storage verification, also set `DSH_TEST_ELECTRON` to an existing Electron executable and run `npm run test:storage`. Only a loopback server and synthetic cookie, localStorage and IndexedDB values are used. The isolated test profile is retained in the OS temp folder for inspection. It contains no production login data.
 
 When adding a supported build, independently verify its main-code hash, guest ownership checks, sandbox and permissions, then exercise install, idempotence, update refusal, byte-exact restore and storage restart tests. Do not add a force flag or relax the hash check to accept arbitrary binaries.

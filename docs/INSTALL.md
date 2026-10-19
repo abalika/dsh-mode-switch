@@ -8,7 +8,7 @@
 
 ```powershell
 npm pack --ignore-scripts
-$Package = (Resolve-Path '.\dsh-mode-switch-0.2.1.tgz').Path -replace '\\', '/'
+$Package = (Resolve-Path '.\dsh-mode-switch-0.2.2.tgz').Path -replace '\\', '/'
 $DshApp = 'C:\path\to\DeepSeek Harness'
 $Dsh = Join-Path $DshApp 'resources\runtime\cli\bin\dsh.cmd'
 ```
@@ -32,16 +32,24 @@ $Dsh = Join-Path $DshApp 'resources\runtime\cli\bin\dsh.cmd'
 
 其他插件报版本兼容错误时，请单独处理，不要关闭整个 profile 的版本检查。
 
-## 可选：跨重启保留网站登录
+## 默认：跨重启保留网站登录
 
-这一步明确修改桌面 `app.asar`，普通插件安装不会自动执行。先运行只读检查（应用运行时也可）：
+**0.2.2 起默认自动配置，不需要额外命令。** Windows 首次启动插件时会检查当前桌面程序；若尚未启用登录保存，临时无窗口助手会等待这套 DSH 从菜单完全退出（只关窗口可能仍留在托盘），然后自动备份并修改 `app.asar`。下次启动生效；首次启用持久分区后可能需要登录一次。不需要关闭安装时的 `--ignore-scripts`。
+
+已启用的安装直接沿用原有持久分区，不迁移或删除网站资料。未知/损坏版本或写入失败时不会强行修改；非 Windows 不自动打补丁。等待期间卸载或替换插件会取消配置。助手不安装服务/计划任务，不强制退出/提权/下载，最多等待 7 天，超时后下次启动重新检测。
+
+若不希望自动配置，在**首次启动 DSH 前**设置环境变量 `DSH_MODE_SWITCH_PERSIST_LOGIN=0`，并从该环境启动应用。已应用的补丁不会因该变量自动撤销；需要按下文手动回退。回退后保留该变量，否则下次启动会再次安排配置。
+
+## 手动检查、故障处理与回退工具
+
+以下命令用于诊断或手动操作，**正常安装无需执行**。先运行只读检查（应用运行时也可）：
 
 ```powershell
 $Archive = Join-Path $DshApp 'resources\app.asar'
 node .\desktop\persistent-session.cjs --archive $Archive --check
 ```
 
-确认受支持版本后，完全退出桌面应用，再安装并检查：
+若自动配置不可用，确认受支持版本后，完全退出桌面应用，可手动安装并检查：
 
 ```powershell
 node .\desktop\persistent-session.cjs --archive $Archive
@@ -58,7 +66,7 @@ node .\desktop\persistent-session.cjs --archive $Archive --check
 
 ## 更新与故障
 
-- 升级桌面后先运行 `--check`。未知版本需等待适配，不要手动跳过哈希校验。
+- 升级桌面后插件自动重新检测，也可运行 `--check`。未知版本需等待适配，不要手动跳过哈希校验。
 - 网页加载失败或崩溃时使用“重新加载”，也可返回 Harness。下载/权限限制不等于登录失效。
 - 侧栏折叠或无法定位品牌时使用备用入口：Harness 左上角，网页右上角。正常网页入口在其自身 LOGO 下方；加载失败时底部显示恢复操作。布局遮挡请提供版本和脱敏截图。
 - 提示已有操作/遗留锁时，先确认无补丁进程且应用已完全退出，检查归档同级的 `app.asar.dsh-mode-switch.lock`。只有确认是中断操作遗留的空锁后，手动移除该文件再检查；保留备份目录。
@@ -82,6 +90,6 @@ node .\desktop\persistent-session.cjs --archive $Archive --restore
 
 ## English quick reference
 
-Use your initialized desktop's bundled CLI and existing `DSH_HOME`. Fully quit from the application menu before installing/removing the plugin or writing the optional patch. Replace the placeholder path. Pack using `npm pack --ignore-scripts`, then run `plugin --profile desktop add "file:<absolute-package-path>" --ignore-scripts`. Restart.
+Use your initialized desktop's bundled CLI and existing `DSH_HOME`. Fully quit from the application menu before installing/removing the plugin or manually writing the partition patch. Replace the placeholder path. Pack using `npm pack --ignore-scripts`, then run `plugin --profile desktop add "file:<absolute-package-path>" --ignore-scripts`. Restart.
 
-The optional tool accepts `--archive <resources/app.asar>` with `--check` (read-only) or `--restore`. Fresh installation must report a verified backup and `restoreAvailable: true`. Legacy 0.1.x backups are not imported automatically; retain the matching original/tool or restore an official original first. Unknown builds, running apps and changed restore targets are refused. Uninstalling does not erase website storage; use website logout if needed.
+Since 0.2.2, activation schedules cross-restart storage automatically on supported Windows installations, even with lifecycle scripts disabled. Fully quit once, then restart; setup runs only after exit. No additional patch command is required. Set `DSH_MODE_SWITCH_PERSIST_LOGIN=0` before activation to opt out. The manual tool accepts `--archive <resources/app.asar>` with `--check` (read-only) or `--restore`. Fresh installation must report a verified backup and `restoreAvailable: true`. Legacy 0.1.x backups are not imported automatically; retain the matching original/tool or restore an official original first. Unknown builds, running apps and changed restore targets are refused. Uninstalling does not erase website storage; use website logout if needed.

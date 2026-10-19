@@ -77,7 +77,7 @@ test('read-only check rejects unknown archives without writing backups', () => {
 
 test('verified desktop archive: install, restart-safe partition, idempotence and byte-exact rollback', {
   skip: !process.env.DSH_TEST_ARCHIVE || process.platform !== 'win32' ? 'Set DSH_TEST_ARCHIVE to a pristine supported Windows app.asar for integration tests.' : false,
-}, () => {
+}, async () => {
   const original = fs.readFileSync(process.env.DSH_TEST_ARCHIVE);
   assert.equal(patch.identify(patch.mainSource(original)).patched, false, 'integration fixture must be pristine');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-patch-integration-'));
@@ -87,7 +87,11 @@ test('verified desktop archive: install, restart-safe partition, idempotence and
   fs.writeFileSync(archive, original);
   try {
     assert.equal(patch.check(archive).status, 'unpatched');
-    assert.equal(patch.install(archive).status, 'installed');
+    assert.throws(() => patch.install(archive, { beforeWrite() { throw new Error('synthetic uninstall'); } }), /synthetic uninstall/);
+    assert.deepEqual(fs.readFileSync(archive), original, 'cancellation must preserve the entire original archive');
+    const auto = require('../desktop/auto-session.cjs');
+    const result = await auto.afterExit({ archive }, process.pid, { isRegistered: () => true, isAlive: () => false });
+    assert.equal(result.status, 'installed', 'default after-exit workflow must perform the real verified patch');
     assert.equal(patch.install(archive).status, 'already-installed');
     assert.equal(patch.check(archive).restoreAvailable, true);
     const installed = fs.readFileSync(archive);

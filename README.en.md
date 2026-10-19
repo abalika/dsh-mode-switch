@@ -8,11 +8,13 @@ Supported desktop builds: **0.2.0-rc.2 and 0.2.1-rc.2**. Tooling requires **Node
 
 ## Install
 
-Download/clone the source, then run `npm pack --ignore-scripts`. Initialize and fully quit DSH Desktop, then add `dsh-mode-switch-0.2.1.tgz` to its `desktop` profile using the CLI bundled with that installation. Restart. See [Windows commands and rollback](docs/INSTALL.md). Development dependencies are not needed. `private: true` prevents accidental npm publication; local tarballs and GitHub distribution still work.
+Download `dsh-mode-switch-0.2.2.tgz` from Releases, or run `npm pack --ignore-scripts` in the source folder. Initialize and fully quit DSH Desktop, then add the tarball to its `desktop` profile using the CLI bundled with that installation. Restart. See [Windows commands and rollback](docs/INSTALL.md). Development dependencies are not needed. `private: true` prevents accidental npm publication; local tarballs and GitHub distribution still work.
 
 ## Remembering login
 
-The plugin keeps the website alive when switching modes. Cross-restart storage requires explicitly applying the optional Windows tool in `desktop/persistent-session.cjs`. It requires an explicit archive path, exact supported main-code hashes and a stopped app. It keeps a verified original backup beside the archive and refuses restore over an update.
+**Automatic by default since 0.2.2; no separate patch command is required.** On activation, the plugin checks its current Windows desktop installation. If setup is needed, a hidden one-shot helper waits for DSH to fully quit, then backs up and patches the supported archive. Storage takes effect on the next launch. Activation works even when installation uses `--ignore-scripts`. Already-enabled installations keep their existing partition.
+
+This modifies the current desktop's `app.asar`; it is not a standard plugin API. Exact supported main-code hashes, stopped-app checks, verified backups and atomic replacement remain mandatory. No forced shutdown, elevation or downloads are used. Uninstalling/replacing the pending plugin cancels setup. The helper exits after success, failure or a seven-day deadline; a later activation can retry. Unsupported builds and non-Windows hosts are left unchanged. Set `DSH_MODE_SWITCH_PERSIST_LOGIN=0` before the first activation to opt out. `desktop/persistent-session.cjs` remains available for explicit diagnostics and rollback; it refuses restore over an update.
 
 The guest uses `persist:dsh-deepseek-chat-v1`; unrelated workspaces stay ephemeral. Cookies, localStorage and IndexedDB remain in Electron's local user data. The plugin does not read/transmit credentials or chat history. Sign-in may be needed once after changing partitions, and again after expiry, logout or clearing storage. App upgrades may overwrite the patch.
 

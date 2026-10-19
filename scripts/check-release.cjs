@@ -12,5 +12,5 @@ for (const name of shipped) {
   if (!source.includes(name)) throw new Error(`Unexpected package file: ${name}`);
   assertPublic(name);
 }
-for (const required of ['lib/client.js', 'lib/index.js', 'desktop/persistent-session.cjs', 'LICENSE', 'README.md', 'README.en.md']) if (!shipped.includes(required)) throw new Error(`Missing package file: ${required}`);
+for (const required of ['lib/client.js', 'lib/index.js', 'desktop/persistent-session.cjs', 'desktop/auto-session.cjs', 'LICENSE', 'README.md', 'README.en.md']) if (!shipped.includes(required)) throw new Error(`Missing package file: ${required}`);
 console.log(`Release check passed: ${source.length} source files, ${shipped.length} package files. No local backups or profiles included.`);

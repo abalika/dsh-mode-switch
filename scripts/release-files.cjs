@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 // Explicit source allowlist. Never recurse into the working directory itself.
-const sourceEntries = ['.gitignore', '.gitattributes', '.github', 'package.json', 'package-lock.json', 'cordis.patch.yml', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.md', 'README.en.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md', 'lib', 'desktop/persistent-session.cjs', 'test', 'scripts', 'docs'];
+const sourceEntries = ['.gitignore', '.gitattributes', '.github', 'package.json', 'package-lock.json', 'cordis.patch.yml', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.md', 'README.en.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md', 'lib', 'desktop/persistent-session.cjs', 'desktop/auto-session.cjs', 'test', 'scripts', 'docs'];
 function walk(entry) {
   const absolute = path.join(root, entry), stat = fs.lstatSync(absolute);
   if (stat.isSymbolicLink()) throw new Error(`Release source cannot contain links: ${entry}`);

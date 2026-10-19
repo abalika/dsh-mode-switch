@@ -1,16 +1,16 @@
 {
   "name": "dsh-mode-switch",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Switch between Harness and DeepSeek Chat in DeepSeek Harness Desktop",
   "private": true,
   "type": "module",
   "main": "lib/index.js",
   "exports": { ".": "./lib/index.js", "./client": "./lib/client.js", "./package.json": "./package.json", "./cordis.patch.yml": "./cordis.patch.yml" },
-  "files": ["lib", "desktop/persistent-session.cjs", "cordis.patch.yml", "README.md", "README.en.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs"],
+  "files": ["lib", "desktop/persistent-session.cjs", "desktop/auto-session.cjs", "cordis.patch.yml", "README.md", "README.en.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs"],
   "engines": { "node": ">=22", "dsh": "0.2.0-rc.2 || 0.2.1-rc.2" },
   "dsh": { "bundle": { "patch": "./cordis.patch.yml" }, "client": { "platform": "web" } },
   "scripts": {
-    "test": "node --test test/switch.test.cjs test/persistent-session.test.cjs",
+    "test": "node --test test/switch.test.cjs test/persistent-session.test.cjs test/auto-session.test.cjs",
     "test:storage": "node test/run-storage-smoke.cjs",
     "release:source": "node scripts/release-source.cjs",
     "check:release": "node scripts/check-release.cjs"
