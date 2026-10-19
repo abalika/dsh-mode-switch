@@ -1,0 +1,3 @@
+- insert:
+    - id: mode-switch
+      name: dsh-mode-switch
